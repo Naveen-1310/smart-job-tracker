@@ -1,0 +1,37 @@
+# ===================================================================
+# Smart Job Application Tracker — Root .gitignore
+# ===================================================================
+
+# ─── OS ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+
+# ─── Backend (Maven / Spring Boot) ──────────────────────────────────
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/.mvn/wrapper/maven-wrapper.properties
+backend/*.log
+
+# ─── Frontend (Node / Vite) ─────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+
+# ─── Environment / Secrets ──────────────────────────────────────────
+*.env
+.env.*
+application-prod.properties
+application-local.properties
+
+# ─── Logs ───────────────────────────────────────────────────────────
+*.log
+logs/
