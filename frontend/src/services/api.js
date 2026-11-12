@@ -8,7 +8,7 @@ import axios from 'axios'
  * - Handles 401 errors (token expired → redirect to login)
  */
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
