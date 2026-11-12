@@ -1,284 +1,136 @@
-# Smart Job Application Tracker
+# 🚀 Smart Job Application Tracker
 
-> A professional Full Stack Web Application for freshers and job seekers to manage their job search journey.
+> A modern, responsive Full-Stack Web Application for job seekers and developers to track applications, practice interview prep, calculate Indian in-hand salaries, and discover 100% real-time hiring alerts across all domains.
 
-Built with **React.js + Spring Boot + MySQL** | JWT Auth | REST API
+Built with **React.js 18 + Spring Boot 3 + MySQL 8** | Pure JdbcTemplate (NO Hibernate) | JWT Auth
 
 ---
 
 ## ✨ Features
 
-- 🔐 **JWT Authentication** — Secure login, registration, BCrypt passwords
-- 📊 **Dashboard** — Stat cards, pie chart, bar chart, recent apps, upcoming interviews
-- 💼 **Job Application CRUD** — Add, view, edit, delete applications
-- 🔍 **Search & Filter** — By company, role, or status
-- 📅 **Interview Management** — Schedule rounds, add meeting links, track status
-- 👤 **User Profile** — Update info, change password
-- 🛡️ **Data Isolation** — Each user sees only their own data
+- 🟢 **Live Tech Hiring Radar & Job Feed** — Fetches 100% real-time active tech openings via public job APIs (Remotive API) and verified campus/MNC off-campus drives (TCS, Zoho, Infosys, Cognizant, AWS, Razorpay, CRED).
+- 🏷️ **Multi-Domain Filters with Live Counters** — Filter openings across 8 domains:
+  - Java & Backend
+  - React & Frontend
+  - Full Stack
+  - Python & AI / Data
+  - Cloud & DevOps
+  - Mobile (Android/iOS/Flutter)
+  - QA & Automation Testing
+  - Cybersecurity & Network
+- 🇮🇳 **Automatic Rupee (₹ LPA) Salary Conversion** — Automatically converts USD/foreign/hourly salaries into Indian Rupees in Lakhs Per Annum (e.g. `$55,000 - $95,000` ➔ `₹46.8 - 80.8 LPA`).
+- ⚡ **1-Click Track into MySQL & Kanban** — Instantly import any live opening or drive into your MySQL database with status `APPLIED` and view it on your Kanban board.
+- 📋 **Interactive Kanban Board & List Views** — Toggle between Kanban pipeline columns and table view with CSV export and quick status updates.
+- 📱 **Full Responsive Web Design** — Mobile off-canvas drawer navigation (`☰`), touch-swipe Kanban columns, and adaptive fluid grids across all screens.
+- 🌓 **Glowing Dark & Light Mode** — Theme switcher with high-contrast typography, custom glows, and zero visibility conflicts.
+- 🧮 **Offer Calculator & CTC Comparator** — Calculates monthly in-hand salary under the New Indian Tax Regime (PF, HRA, Standard Deduction) and compares two competing offers side-by-side.
+- 🎯 **ATS Resume Scanner & Interview Prep** — Analyzes job description keywords against your skills profile and includes domain-specific interview prep checklists.
+- 🔐 **JWT Authentication & Data Isolation** — Secure login, registration, and BCrypt encrypted passwords.
 
 ---
 
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Frontend | React.js 18, Vite, React Router DOM v6 |
-| State | React Context API |
-| UI | Custom CSS + Bootstrap 5 + react-icons |
-| Charts | Recharts |
-| HTTP | Axios |
-| Backend | Spring Boot 3.2, Spring Security 6 |
-| Auth | JWT (jjwt 0.12.3), BCrypt |
-| Data Access | Spring Boot JdbcTemplate (Manual SQL queries, NO Hibernate) |
-| Database | MySQL 8 |
-| Build | Maven |
+|---|---|
+| **Frontend** | React 18, Vite, React Router DOM v6, React Hot Toast |
+| **Icons & Charts** | React Icons (`react-icons/fa`, `react-icons/md`), Recharts |
+| **Backend** | Spring Boot 3.2.4, Spring Security 6 |
+| **Data Access** | Spring Boot `JdbcTemplate` (Manual SQL queries — **NO Hibernate / JPA**) |
+| **Database** | MySQL 8.0 (`job_tracker_db`, utf8mb4) |
+| **Security** | Stateless JWT (jjwt 0.12.3) + BCrypt password hashing |
+| **Build & Run** | Maven (`mvnw.cmd`) + Vite + 1-Click `run-app.bat` |
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Architecture
 
 ```
 smart-job-tracker/
-├── backend/          ← Spring Boot Maven project
+├── backend/
+│   ├── src/main/java/com/jobtracker/app/
+│   │   ├── config/          # Spring Security, CORS & JWT filter config
+│   │   ├── controller/      # Auth, Application, Dashboard, Interview REST endpoints
+│   │   ├── dto/             # Request & Response POJOs
+│   │   ├── entity/          # Plain Java objects (User, JobApplication, Interview)
+│   │   ├── repository/      # Hand-crafted SQL with JdbcTemplate & RowMappers
+│   │   └── service/         # Business logic & password verification
+│   ├── src/main/resources/
+│   │   ├── application.properties  # Localhost MySQL configuration
+│   │   └── schema.sql              # Auto-initialized table schemas
 │   └── pom.xml
-└── frontend/         ← React.js Vite project
-    └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # Layout (Navbar, Sidebar), Modals, Badges
+│   │   ├── context/         # AuthContext & ThemeContext (Dark/Light)
+│   │   ├── pages/           # Dashboard, JobNews, Applications, Offers, Profile
+│   │   ├── services/        # Axios API clients & Real-time JobNewsService
+│   │   ├── styles/          # Responsive Global CSS & Dark Mode theme
+│   │   └── utils/           # Currency converter (₹), Date formatters
+│   └── package.json
+└── run-app.bat              # 1-Click Windows launcher for Backend + Frontend
 ```
 
 ---
 
-## ⚙️ Local Setup — Step by Step
+## ⚙️ How to Run Locally
 
 ### Prerequisites
-- ☑️ Java 17+ (JDK)
-- ☑️ Node.js 18+
-- ☑️ MySQL 8
-- ☑️ Maven 3.8+
-- ☑️ IntelliJ IDEA or VS Code
+- Java 17+ (JDK)
+- Node.js 18+
+- MySQL 8.0 running on `localhost:3306` (with password `0000` or updated in `application.properties`)
 
----
-
-### Step 1: Set Up MySQL Database
-
-Open MySQL Workbench or terminal and run:
-
-```sql
-CREATE DATABASE job_tracker_db;
+### Option A: 1-Click Launch (Windows)
+Double-click `run-app.bat` in the project root:
+```powershell
+.\run-app.bat
 ```
-
-When the Spring Boot application boots up, it automatically executes `schema.sql` via Spring Boot's SQL initialization to create `users`, `job_applications`, and `interviews` tables with foreign keys and cascade rules.
-
----
-
-### Step 2: Configure Backend
-
-Open `backend/src/main/resources/application.properties` and update:
-
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/job_tracker_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-spring.datasource.username=root
-spring.datasource.password=YOUR_MYSQL_PASSWORD_HERE
-```
+This automatically starts:
+1. Spring Boot Backend on `http://localhost:8080`
+2. React Vite Frontend on `http://localhost:5173`
+3. Launches your default browser directly to `http://localhost:5173`
 
 ---
 
-### Step 3: Run the Backend
+### Option B: Manual Terminal Launch
 
+#### 1. Start the Backend
 ```bash
-cd smart-job-tracker/backend
-mvn spring-boot:run
+cd backend
+.\mvnw.cmd spring-boot:run
 ```
 
-Backend starts at: **http://localhost:8080**
-
-You should see:
-```
-Tomcat started on port 8080
-Started JobTrackerApplication
-```
-
----
-
-### Step 4: Install Frontend Dependencies
-
+#### 2. Start the Frontend
 ```bash
-cd smart-job-tracker/frontend
+cd frontend
 npm install
-```
-
----
-
-### Step 5: Run the Frontend
-
-```bash
 npm run dev
 ```
 
-Frontend starts at: **http://localhost:5173**
+#### 3. Open in Browser
+Visit **http://localhost:5173**
+
+**Default Demo Credentials:**
+- **Email:** `naveenpalanisamy052@gmail.com`
+- **Password:** `123456`
+*(Or click "Create one free" to register a new user)*
 
 ---
 
-### Step 6: Open the App
+## 🔌 Core API Endpoints
 
-Go to: **http://localhost:5173**
-
-1. Click **Create one free** to register
-2. Login with your credentials
-3. Start adding job applications!
-
----
-
-## 🔌 API Reference (Postman Testing)
-
-### Base URL
-```
-http://localhost:8080/api
-```
-
-### 1. Register
-```
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "Naveen Kumar",
-  "email": "naveen@example.com",
-  "password": "password123"
-}
-```
-
-### 2. Login
-```
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "naveen@example.com",
-  "password": "password123"
-}
-
-→ Response: { "token": "eyJ...", "name": "Naveen Kumar", ... }
-```
-
-### 3. Add Application (with Bearer Token)
-```
-POST /api/applications
-Authorization: Bearer <your_jwt_token>
-Content-Type: application/json
-
-{
-  "companyName": "Google",
-  "jobRole": "Software Engineer",
-  "jobLocation": "Bangalore",
-  "jobType": "FULL_TIME",
-  "applicationDate": "2024-11-01",
-  "status": "APPLIED"
-}
-```
-
-### 4. Get All Applications
-```
-GET /api/applications
-Authorization: Bearer <token>
-
-// With search:
-GET /api/applications?keyword=google
-GET /api/applications?status=APPLIED
-```
-
-### 5. Dashboard Stats
-```
-GET /api/dashboard/stats
-Authorization: Bearer <token>
-```
-
-### 6. Schedule Interview
-```
-POST /api/interviews
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "jobApplicationId": 1,
-  "interviewDate": "2024-11-15T10:30:00",
-  "round": "Round 1 - Technical",
-  "interviewType": "ONLINE",
-  "meetingLink": "https://meet.google.com/abc-xyz",
-  "status": "SCHEDULED"
-}
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/auth/register` | Register new user account |
+| `POST` | `/api/auth/login` | Login and obtain JWT token |
+| `GET` | `/api/dashboard/stats` | Dashboard metrics & monthly statistics |
+| `GET` | `/api/applications` | List user job applications (with search & filter) |
+| `POST` | `/api/applications` | Create a new job application |
+| `PATCH` | `/api/applications/{id}/status` | Quick update status for Kanban drag/drop |
+| `GET` | `/api/interviews` | List scheduled interviews |
+| `POST` | `/api/interviews` | Schedule new interview round |
 
 ---
 
-## 🗄️ Database Tables (Auto-Created via schema.sql)
-
-```sql
--- Verify tables were created
-USE job_tracker_db;
-SHOW TABLES;
-
--- Sample queries
-SELECT * FROM users;
-SELECT * FROM job_applications;
-SELECT * FROM interviews;
-```
-
----
-
-## 📸 Application Pages
-
-| Page | Route |
-|------|-------|
-| Login | /login |
-| Register | /register |
-| Dashboard | /dashboard |
-| Applications List | /applications |
-| Add Application | /applications/new |
-| Edit Application | /applications/:id/edit |
-| Application Detail | /applications/:id |
-| Interviews | /interviews |
-| Profile | /profile |
-
----
-
-## 🚀 Deployment (Optional)
-
-### Backend → Render.com (Free)
-1. Create a `Procfile` with: `web: java -jar target/smart-job-tracker-1.0.0.jar`
-2. Set environment variables for DB_URL, DB_USER, DB_PASSWORD
-3. Connect GitHub → Render → auto-deploy
-
-### Frontend → Netlify / Vercel (Free)
-1. Update `vite.config.js` proxy target to your deployed backend URL
-2. Run `npm run build` → upload `dist/` folder
-3. Or connect GitHub for auto-deploy
-
-### Database → Railway.app / PlanetScale (Free tiers)
-- Create a MySQL database → copy the connection string
-
----
-
-## 🎯 Key Concepts to Explain in Interview
-
-| Concept | Where Used |
-|---------|-----------|
-| JWT Authentication | JwtUtil, JwtAuthFilter, SecurityConfig |
-| BCrypt Password Hashing | AuthService, SecurityConfig |
-| Spring Security Filter Chain | SecurityConfig |
-| JdbcTemplate & Raw SQL | UserRepository, JobApplicationRepository, InterviewRepository |
-| RowMapper Interface | Converting SQL ResultSets into Java POJOs |
-| KeyHolder / Auto-generated Keys | Capturing MySQL auto-increment IDs during INSERT |
-| DTO Pattern | dto/request and dto/response packages |
-| Service Layer Pattern | All *Service.java classes |
-| Global Exception Handling | GlobalExceptionHandler.java |
-| React Context API | AuthContext.jsx |
-| Axios Interceptors | services/api.js |
-| Protected Routes | ProtectedRoute.jsx |
-
----
-
-## 👨‍💻 Author
-
-Built for fresher Java Full Stack Developer portfolio.
-
-Technology: React.js + Spring Boot + MySQL + JWT
+## 📄 License
+MIT License. Open source and free for developers and job seekers!
