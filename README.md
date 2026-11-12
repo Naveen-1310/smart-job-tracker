@@ -29,6 +29,33 @@ Built with **React.js 18 + Spring Boot 3 + MySQL 8** | Pure JdbcTemplate (NO Hib
 
 ---
 
+## 📸 App Preview & Screenshots
+
+### 📊 Overview Dashboard & Live Radar
+![Overview Dashboard](docs/screenshots/dashboard.png)
+
+---
+
+### 🟢 Live Tech Hiring Radar & All-Domain Feed (with ₹ LPA Salaries)
+![Live Hiring Radar](docs/screenshots/hiring-radar.png)
+
+---
+
+### 📋 Interactive Kanban Pipeline & Status Tracker
+![Kanban Board](docs/screenshots/kanban.png)
+
+---
+
+### 🧮 CTC to Monthly In-Hand Salary Calculator & Offer Comparison
+![Offer Calculator](docs/screenshots/offer-calculator.png)
+
+---
+
+### 🎯 ATS Keyword Skill Matcher & Interview Prep Checklist
+![ATS Resume Scanner](docs/screenshots/ats-analysis.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 | Layer | Technology |
