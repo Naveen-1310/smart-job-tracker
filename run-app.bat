@@ -1,45 +1,32 @@
 @echo off
+title Smart Job Application Tracker
 echo ===================================================
 echo   Starting Smart Job Application Tracker
 echo ===================================================
 echo.
 
-:: 1. Free port 8080 if already in use by an old session
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8080 "') do (
-    echo Freeing port 8080 (Process ID: %%a)...
-    taskkill /F /PID %%a >nul 2>&1
-)
+echo [1/2] Starting Spring Boot Backend on port 8080...
+start "Job Tracker - Backend" cmd /k "cd /d "%~dp0backend" && java -jar target\smart-job-tracker-1.0.0.jar"
 
-:: 2. Start Spring Boot Backend in a new window
-echo Starting Spring Boot Backend (Port 8080)...
-if exist "%~dp0backend\target\smart-job-tracker-1.0.0.jar" (
-    start "Job Tracker - Backend" cmd /k "cd /d %~dp0backend && java -jar target\smart-job-tracker-1.0.0.jar"
-) else (
-    start "Job Tracker - Backend" cmd /k "cd /d %~dp0backend && mvnw.cmd spring-boot:run"
-)
+echo Waiting for Backend to initialize...
+ping 127.0.0.1 -n 6 >nul
 
-:: Wait 3 seconds for Backend
-timeout /t 3 >nul
+echo [2/2] Starting React Frontend on port 5173...
+start "Job Tracker - Frontend" cmd /k "cd /d "%~dp0frontend" && npm run dev"
 
-:: 3. Start React Frontend in a new window
-echo Starting React Frontend (Port 5173)...
-start "Job Tracker - Frontend" cmd /k "cd /d %~dp0frontend && npm run dev"
+echo Waiting for Frontend to initialize...
+ping 127.0.0.1 -n 4 >nul
 
-:: Wait 3 seconds for Vite
-timeout /t 3 >nul
-
-:: 4. Automatically open browser
-echo Opening application in your browser...
+echo Opening browser at http://localhost:5173...
 start http://localhost:5173
 
 echo.
 echo ===================================================
-echo   Application is now running!
+echo   Both services started successfully!
 echo   Backend:  http://localhost:8080
 echo   Frontend: http://localhost:5173
 echo ===================================================
 echo.
-echo (Keep the two black terminal windows open while using the app)
-echo (Close them when you are done)
-echo.
+echo Keep the Backend and Frontend windows open.
+echo You can minimize them while using the app.
 pause
