@@ -1,8 +1,9 @@
 /**
  * jobNewsService.js — Real-Time Job Feed Service
- * Fetches 100% REAL, active, live job postings via public APIs (Remotive API with Access-Control-Allow-Origin: *),
+ * Fetches 100% REAL active job postings via public APIs (Remotive API) and converts all salaries into Indian Rupees (₹),
  * combined with verified Indian & Global Campus/MNC recruitment drives.
  */
+import { formatSalaryInRupees } from '../utils/helpers'
 
 export const JOB_DOMAINS = [
   'All Domains',
@@ -31,7 +32,7 @@ export const EXPERIENCE_LEVELS = [
   '2+ Years'
 ]
 
-// Verified Campus & Off-Campus Recruitment Drives
+// Verified Campus & Off-Campus Recruitment Drives with Rupee (₹) salaries
 export const VERIFIED_CAMPUS_DRIVES = [
   {
     id: 'drive-1',
@@ -42,7 +43,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Chennai / Tenkasi / Salem, India',
     experience: 'Fresher (2024 / 2025 / 2026 Batch)',
     expLevel: 'Freshers (2024-2026)',
-    salary: '6.5 - 9.0 LPA',
+    salary: '₹6.5 - 9.0 LPA',
     source: 'Zoho Off-Campus Drive',
     isRealLive: false,
     posted: 'Today',
@@ -59,7 +60,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Pan India (Multiple Locations)',
     experience: 'Fresher (2024 / 2025 / 2026)',
     expLevel: 'Freshers (2024-2026)',
-    salary: '7.5 - 9.2 LPA',
+    salary: '₹7.5 - 9.2 LPA',
     source: 'National Qualifier Test (NQT)',
     isRealLive: false,
     posted: 'Today',
@@ -76,7 +77,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Bangalore, India (Hybrid)',
     experience: '0-2 Years',
     expLevel: '0-2 Years',
-    salary: '16 - 22 LPA',
+    salary: '₹16 - 22 LPA',
     source: 'Verified Portal',
     isRealLive: false,
     posted: 'Today',
@@ -93,7 +94,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Bangalore / Hyderabad / Pune',
     experience: 'Fresher / 0-1 Years',
     expLevel: 'Freshers (2024-2026)',
-    salary: '9.5 - 11 LPA',
+    salary: '₹9.5 - 11 LPA',
     source: 'HackWithInfy Drive',
     isRealLive: false,
     posted: 'Yesterday',
@@ -110,7 +111,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Chennai / Coimbatore / Bangalore',
     experience: 'Fresher (2025 / 2026 Batch)',
     expLevel: 'Freshers (2024-2026)',
-    salary: '4.5 - 6.5 LPA',
+    salary: '₹4.5 - 6.5 LPA',
     source: 'Campus & Off-Campus',
     isRealLive: false,
     posted: '2 days ago',
@@ -127,7 +128,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Bangalore / Hyderabad',
     experience: 'Fresher (2024 / 2025 / 2026)',
     expLevel: 'Freshers (2024-2026)',
-    salary: '14 - 18 LPA',
+    salary: '₹14 - 18 LPA',
     source: 'Campus Drive',
     isRealLive: false,
     posted: 'Today',
@@ -144,7 +145,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Bangalore, India',
     experience: '0-2 Years',
     expLevel: '0-2 Years',
-    salary: '14 - 18 LPA',
+    salary: '₹14 - 18 LPA',
     source: 'Verified Portal',
     isRealLive: false,
     posted: 'Yesterday',
@@ -161,7 +162,7 @@ export const VERIFIED_CAMPUS_DRIVES = [
     location: 'Bangalore, India',
     experience: '1-3 Years',
     expLevel: '0-2 Years',
-    salary: '24 - 32 LPA',
+    salary: '₹24 - 32 LPA',
     source: 'Tech Hiring Alert',
     isRealLive: false,
     posted: '2 days ago',
@@ -258,7 +259,7 @@ let lastFetchedTime = null
 const CACHE_DURATION_MS = 10 * 60 * 1000 // 10 minutes cache
 
 /**
- * Fetch 100% REAL live job postings from Remotive API
+ * Fetch 100% REAL live job postings from Remotive API and convert salary to Rupees
  */
 async function fetchRealLiveJobs(force = false) {
   // Use cache if fresh
@@ -295,6 +296,10 @@ async function fetchRealLiveJobs(force = false) {
       const domain = classifyDomain(job.title, tagsStr)
       const skills = extractSkills(tagsStr)
 
+      // Convert salary to Indian Rupees (₹)
+      const rawSalary = job.salary && job.salary.trim() ? job.salary : '$55,000 - $95,000 / yr'
+      const inrSalary = formatSalaryInRupees(rawSalary)
+
       return {
         id: `live-remotive-${job.id}`,
         company: job.company_name || 'Tech Company',
@@ -304,11 +309,11 @@ async function fetchRealLiveJobs(force = false) {
         location: job.candidate_required_location || 'Remote (Worldwide)',
         experience: '0-3 Yrs / Open',
         expLevel: 'All Levels',
-        salary: job.salary && job.salary.trim() ? job.salary : '$55,000 - $95,000 / yr',
+        salary: inrSalary, // Converted to Rupees (₹)
         source: 'Live Remotive API',
         isRealLive: true,
         posted: formatTimeAgo(job.publication_date),
-        url: job.url, // Real, active application URL!
+        url: job.url, // Real, active application URL
         skills: skills.length > 0 ? skills : ['Git', 'APIs', 'Problem Solving'],
         description: cleanDescription(job.description)
       }

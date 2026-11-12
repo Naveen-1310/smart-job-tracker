@@ -11,7 +11,7 @@ import {
   MdAttachMoney, MdWork, MdSchedule, MdFilterList,
   MdFlashOn, MdBusiness, MdSchool, MdPublic, MdRefresh
 } from 'react-icons/md'
-import { FaJava, FaReact, FaPython, FaAws, FaMobileAlt, FaShieldAlt } from 'react-icons/fa'
+import { FaJava, FaReact, FaPython, FaAws, FaMobileAlt, FaShieldAlt, FaRupeeSign } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
 /**
@@ -539,7 +539,7 @@ function JobNewsPage() {
                       <span>{job.location}</span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <MdAttachMoney size={14} style={{ color: '#10B981' }} />
+                      <FaRupeeSign size={13} style={{ color: '#10B981' }} />
                       <strong style={{ color: 'var(--text)' }}>{job.salary}</strong>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

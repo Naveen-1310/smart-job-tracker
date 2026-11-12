@@ -9,6 +9,7 @@ import {
   MdAdd, MdEdit, MdDelete, MdSearch, MdOpenInNew,
   MdViewList, MdViewKanban, MdFileDownload, MdLocationOn, MdAttachMoney
 } from 'react-icons/md'
+import { FaRupeeSign } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
 const KANBAN_COLUMNS = [
@@ -266,7 +267,7 @@ function ApplicationsPage() {
                           )}
                           {app.salaryRange && (
                             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                              <MdAttachMoney size={13} /> {app.salaryRange}
+                              <FaRupeeSign size={11} /> {app.salaryRange}
                             </span>
                           )}
                         </div>

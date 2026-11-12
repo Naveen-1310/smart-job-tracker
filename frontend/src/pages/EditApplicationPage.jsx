@@ -134,7 +134,7 @@ function EditApplicationPage() {
             </div>
             <div className="form-group">
               <label className="form-label">Salary Range</label>
-              <input type="text" name="salaryRange" className="form-control" value={form.salaryRange} onChange={handleChange} placeholder="e.g. 8-12 LPA" />
+              <input type="text" name="salaryRange" className="form-control" value={form.salaryRange} onChange={handleChange} placeholder="e.g. ₹8 - 12 LPA or ₹50,000/mo" />
             </div>
           </div>
 

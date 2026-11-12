@@ -150,7 +150,7 @@ function AddApplicationPage() {
                 type="text"
                 name="salaryRange"
                 className="form-control"
-                placeholder="e.g. 8-12 LPA"
+                placeholder="e.g. ₹8 - 12 LPA or ₹50,000/mo"
                 value={form.salaryRange}
                 onChange={handleChange}
               />

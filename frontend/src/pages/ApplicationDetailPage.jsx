@@ -10,6 +10,7 @@ import {
   MdWork, MdLocationOn, MdAttachMoney, MdPsychology, MdCheckCircle,
   MdRadioButtonUnchecked, MdAssignmentTurnedIn, MdStar
 } from 'react-icons/md'
+import { FaRupeeSign } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 
 // Common technical skills library for ATS matching
@@ -163,7 +164,7 @@ function ApplicationDetailPage() {
           <InfoRow icon={<MdWork />} label="Job Role" value={app.jobRole} />
           <InfoRow icon={<MdLocationOn />} label="Location" value={app.jobLocation} />
           <InfoRow icon={<MdCalendarToday />} label="Applied On" value={formatDate(app.applicationDate)} />
-          <InfoRow icon={<MdAttachMoney />} label="Salary Range" value={app.salaryRange} />
+          <InfoRow icon={<FaRupeeSign size={15} />} label="Salary Range" value={app.salaryRange} />
           <InfoRow icon={<MdWork />} label="Job Type" value={getJobTypeLabel(app.jobType)} />
 
           {app.jobPostingUrl && (
