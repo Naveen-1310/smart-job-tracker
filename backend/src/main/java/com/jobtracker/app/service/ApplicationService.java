@@ -123,6 +123,18 @@ public class ApplicationService {
         return toResponse(applicationRepository.save(app));
     }
 
+    // ─── Update Status Only (for Kanban Drag-and-Drop) ───────────────
+    public ApplicationResponse updateStatus(Long id, String statusStr, String userEmail) {
+        User user = getUserByEmail(userEmail);
+        JobApplication app = applicationRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Application", id));
+
+        ApplicationStatus status = ApplicationStatus.valueOf(statusStr.toUpperCase());
+        applicationRepository.updateStatus(id, user.getId(), status);
+        app.setStatus(status);
+        return toResponse(app);
+    }
+
     // ─── Delete ───────────────────────────────────────────────────────
 
     public void deleteApplication(Long id, String userEmail) {

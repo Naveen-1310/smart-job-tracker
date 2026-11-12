@@ -168,6 +168,12 @@ public class JobApplicationRepository {
         return app;
     }
 
+    // ─── Update application status only ─────────────────────────────
+    public void updateStatus(Long id, Long userId, ApplicationStatus status) {
+        String sql = "UPDATE job_applications SET status = ? WHERE id = ? AND user_id = ?";
+        jdbc.update(sql, status.name(), id, userId);
+    }
+
     // ─── Delete application ──────────────────────────────────────────
     // CASCADE in schema.sql auto-deletes related interviews
 

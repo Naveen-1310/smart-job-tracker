@@ -1,12 +1,14 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { MdAdd } from 'react-icons/md'
+import { MdAdd, MdDarkMode, MdLightMode } from 'react-icons/md'
+import { useTheme } from '../../hooks/useTheme'
 
 /**
- * Navbar — top horizontal bar showing current page title and action button.
+ * Navbar — top horizontal bar showing current page title, theme switcher, and action button.
  */
 function Navbar() {
   const location = useLocation()
+  const { theme, toggleTheme } = useTheme()
 
   // Map routes to page titles
   const pageTitles = {
@@ -47,13 +49,34 @@ function Navbar() {
         )}
       </div>
 
-      {/* Quick action button */}
-      {currentPath === '/applications' && (
-        <Link to="/applications/new" className="btn btn-primary btn-sm">
-          <MdAdd size={18} />
-          New Application
-        </Link>
-      )}
+      {/* Actions: Theme Toggle & Quick Action */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button
+          onClick={toggleTheme}
+          className="theme-toggle-btn"
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+          type="button"
+        >
+          {theme === 'dark' ? (
+            <>
+              <MdLightMode size={16} color="#FBBF24" />
+              <span>Light</span>
+            </>
+          ) : (
+            <>
+              <MdDarkMode size={16} color="#6366F1" />
+              <span>Dark</span>
+            </>
+          )}
+        </button>
+
+        {currentPath === '/applications' && (
+          <Link to="/applications/new" className="btn btn-primary btn-sm">
+            <MdAdd size={18} />
+            New Application
+          </Link>
+        )}
+      </div>
     </header>
   )
 }

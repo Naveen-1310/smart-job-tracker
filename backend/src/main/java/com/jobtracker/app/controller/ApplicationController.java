@@ -90,6 +90,26 @@ public class ApplicationController {
     }
 
     /**
+     * PATCH /api/applications/{id}/status
+     * Quick status update (for Kanban board drag-and-drop / status switcher).
+     */
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApplicationResponse> updateStatus(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> body,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String status = body.get("status");
+        if (status == null || status.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        ApplicationResponse response = applicationService.updateStatus(
+                id, status, userDetails.getUsername());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * DELETE /api/applications/{id}
      * Delete an application (cascades to interviews).
      */

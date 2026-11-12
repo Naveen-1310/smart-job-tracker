@@ -4,7 +4,7 @@ import { applicationService } from '../services/applicationService'
 import { formatDateTime, getErrorMessage } from '../utils/helpers'
 import ConfirmDialog from '../components/common/ConfirmDialog'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-import { MdAdd, MdEdit, MdDelete, MdSave, MdClose, MdOpenInNew, MdSchedule } from 'react-icons/md'
+import { MdAdd, MdEdit, MdDelete, MdSave, MdClose, MdOpenInNew, MdSchedule, MdCalendarToday } from 'react-icons/md'
 import toast from 'react-hot-toast'
 
 /**
@@ -111,6 +111,21 @@ function InterviewsPage() {
       toast.error(getErrorMessage(error))
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const getGoogleCalendarUrl = (interview) => {
+    if (!interview.interviewDate) return '#'
+    try {
+      const startDate = new Date(interview.interviewDate)
+      const endDate = new Date(startDate.getTime() + 60 * 60 * 1000)
+      const formatGCalDate = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, "")
+      const text = encodeURIComponent(`Interview: ${interview.companyName || 'Company'} - ${interview.round || 'Round'}`)
+      const details = encodeURIComponent(`Role: ${interview.jobRole || ''}\nType: ${interview.interviewType || 'ONLINE'}\nMeeting Link: ${interview.meetingLink || 'N/A'}\nPrep Notes: ${interview.preparationNotes || ''}`)
+      const location = encodeURIComponent(interview.meetingLink || interview.companyName || 'Online')
+      return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${formatGCalDate(startDate)}/${formatGCalDate(endDate)}&details=${details}&location=${location}`
+    } catch {
+      return '#'
     }
   }
 
@@ -246,6 +261,17 @@ function InterviewsPage() {
                     <td>{statusBadge(interview.status)}</td>
                     <td>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <a
+                          href={getGoogleCalendarUrl(interview)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-secondary btn-sm"
+                          title="Add to Google Calendar"
+                          style={{ color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: 3 }}
+                        >
+                          <MdCalendarToday size={13} />
+                          <span>Cal</span>
+                        </a>
                         {interview.meetingLink && (
                           <a href={interview.meetingLink} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" title="Join Meeting">
                             <MdOpenInNew size={14} />
