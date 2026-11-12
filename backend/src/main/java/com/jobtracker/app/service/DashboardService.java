@@ -7,13 +7,11 @@ import com.jobtracker.app.dto.response.InterviewResponse;
 import com.jobtracker.app.entity.JobApplication.ApplicationStatus;
 import com.jobtracker.app.entity.User;
 import com.jobtracker.app.exception.ResourceNotFoundException;
-import com.jobtracker.app.repository.InterviewRepository;
 import com.jobtracker.app.repository.JobApplicationRepository;
 import com.jobtracker.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +25,6 @@ public class DashboardService {
 
     @Autowired private UserRepository userRepository;
     @Autowired private JobApplicationRepository applicationRepository;
-    @Autowired private InterviewRepository interviewRepository;
-    @Autowired private ApplicationService applicationService;
     @Autowired private InterviewService interviewService;
 
     private User getUserByEmail(String email) {
@@ -36,15 +32,10 @@ public class DashboardService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + email));
     }
 
-    /**
-     * Get summary statistics for the dashboard cards.
-     * Also includes monthly data for the bar chart.
-     */
     public DashboardStatsResponse getStats(String userEmail) {
         User user = getUserByEmail(userEmail);
         Long userId = user.getId();
 
-        // Count each application status
         long total = applicationRepository.countByUserId(userId);
         long applied = applicationRepository.countByUserIdAndStatus(userId, ApplicationStatus.APPLIED);
         long assessment = applicationRepository.countByUserIdAndStatus(userId, ApplicationStatus.ASSESSMENT);
@@ -52,13 +43,13 @@ public class DashboardService {
         long selected = applicationRepository.countByUserIdAndStatus(userId, ApplicationStatus.SELECTED);
         long rejected = applicationRepository.countByUserIdAndStatus(userId, ApplicationStatus.REJECTED);
 
-        // Build monthly data for bar chart
+        // Monthly data for bar chart
         List<Object[]> rawMonthly = applicationRepository.countByMonthForUser(userId);
         List<MonthlyData> monthlyData = new ArrayList<>();
         for (Object[] row : rawMonthly) {
             int monthNum = ((Number) row[0]).intValue();
             long count = ((Number) row[1]).longValue();
-            String monthName = Month.of(monthNum).name().substring(0, 3); // "JAN", "FEB", etc.
+            String monthName = Month.of(monthNum).name().substring(0, 3);
             monthlyData.add(new MonthlyData(monthName, count));
         }
 
@@ -73,9 +64,6 @@ public class DashboardService {
                 .build();
     }
 
-    /**
-     * Get the 5 most recent applications (for the dashboard table).
-     */
     public List<ApplicationResponse> getRecentApplications(String userEmail) {
         User user = getUserByEmail(userEmail);
         return applicationRepository.findTop5ByUserIdOrderByCreatedAtDesc(user.getId())
@@ -92,9 +80,6 @@ public class DashboardService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Get upcoming interviews (for the dashboard reminder widget).
-     */
     public List<InterviewResponse> getUpcomingInterviews(String userEmail) {
         return interviewService.getUpcomingInterviews(userEmail);
     }

@@ -29,7 +29,7 @@ Built with **React.js + Spring Boot + MySQL** | JWT Auth | REST API
 | HTTP | Axios |
 | Backend | Spring Boot 3.2, Spring Security 6 |
 | Auth | JWT (jjwt 0.12.3), BCrypt |
-| ORM | Spring Data JPA + Hibernate |
+| Data Access | Spring Boot JdbcTemplate (Manual SQL queries, NO Hibernate) |
 | Database | MySQL 8 |
 | Build | Maven |
 
@@ -66,7 +66,7 @@ Open MySQL Workbench or terminal and run:
 CREATE DATABASE job_tracker_db;
 ```
 
-That's it! Hibernate will auto-create the tables when you run the backend.
+When the Spring Boot application boots up, it automatically executes `schema.sql` via Spring Boot's SQL initialization to create `users`, `job_applications`, and `interviews` tables with foreign keys and cascade rules.
 
 ---
 
@@ -210,7 +210,7 @@ Content-Type: application/json
 
 ---
 
-## 🗄️ Database Tables (Auto-Created by Hibernate)
+## 🗄️ Database Tables (Auto-Created via schema.sql)
 
 ```sql
 -- Verify tables were created
@@ -265,7 +265,9 @@ SELECT * FROM interviews;
 | JWT Authentication | JwtUtil, JwtAuthFilter, SecurityConfig |
 | BCrypt Password Hashing | AuthService, SecurityConfig |
 | Spring Security Filter Chain | SecurityConfig |
-| JPA Entity Relationships | @OneToMany, @ManyToOne in entities |
+| JdbcTemplate & Raw SQL | UserRepository, JobApplicationRepository, InterviewRepository |
+| RowMapper Interface | Converting SQL ResultSets into Java POJOs |
+| KeyHolder / Auto-generated Keys | Capturing MySQL auto-increment IDs during INSERT |
 | DTO Pattern | dto/request and dto/response packages |
 | Service Layer Pattern | All *Service.java classes |
 | Global Exception Handling | GlobalExceptionHandler.java |
