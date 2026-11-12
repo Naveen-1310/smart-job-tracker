@@ -15,6 +15,8 @@ function Navbar() {
     '/dashboard':    { title: 'Dashboard',         subtitle: 'Overview of your job search' },
     '/applications': { title: 'Applications',       subtitle: 'Manage your job applications' },
     '/interviews':   { title: 'Interviews',         subtitle: 'Track your interview schedule' },
+    '/job-news':     { title: 'Hiring Radar',       subtitle: 'Live openings across MNCs, Startups & all domains' },
+    '/offers':       { title: 'Offer Calculator',   subtitle: 'Compare job offers and in-hand salaries' },
     '/profile':      { title: 'Profile',            subtitle: 'Your personal information' },
   }
 

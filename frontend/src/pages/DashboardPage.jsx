@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { dashboardService } from '../services/dashboardService'
+import { applicationService } from '../services/applicationService'
+import { INITIAL_JOB_OPENINGS } from '../services/jobNewsService'
 import { formatDate, formatDateTime, getStatusLabel } from '../utils/helpers'
 import StatusBadge from '../components/applications/StatusBadge'
 import LoadingSpinner from '../components/common/LoadingSpinner'
@@ -8,20 +10,25 @@ import {
   PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from 'recharts'
-import { MdWork, MdEventNote, MdCheckCircle, MdCancel, MdAdd, MdSend, MdOpenInNew } from 'react-icons/md'
+import {
+  MdWork, MdEventNote, MdCheckCircle, MdCancel, MdAdd, MdSend,
+  MdOpenInNew, MdFlashOn, MdTrendingUp, MdLocationOn, MdAttachMoney
+} from 'react-icons/md'
 import toast from 'react-hot-toast'
 
 // Colors for pie chart slices
 const PIE_COLORS = ['#4F46E5', '#D97706', '#0EA5E9', '#16A34A', '#DC2626']
 
 /**
- * DashboardPage — overview with stat cards, charts, recent apps, and upcoming interviews.
+ * DashboardPage — overview with stat cards, charts, live hiring radar, recent apps, and upcoming interviews.
  */
 function DashboardPage() {
   const [stats, setStats] = useState(null)
   const [recentApps, setRecentApps] = useState([])
   const [upcomingInterviews, setUpcomingInterviews] = useState([])
   const [loading, setLoading] = useState(true)
+  const [trackedJobs, setTrackedJobs] = useState({})
+  const [trackingId, setTrackingId] = useState(null)
 
   useEffect(() => {
     loadDashboard()
@@ -29,7 +36,6 @@ function DashboardPage() {
 
   const loadDashboard = async () => {
     try {
-      // Fetch all dashboard data in parallel
       const [statsRes, recentRes, interviewsRes] = await Promise.all([
         dashboardService.getStats(),
         dashboardService.getRecentApplications(),
@@ -38,10 +44,36 @@ function DashboardPage() {
       setStats(statsRes.data)
       setRecentApps(recentRes.data)
       setUpcomingInterviews(interviewsRes.data)
-    } catch (error) {
+    } catch {
       toast.error('Failed to load dashboard data')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // 1-Click Track directly from Dashboard widget
+  const handleTrackFromDashboard = async (job) => {
+    setTrackingId(job.id)
+    try {
+      await applicationService.create({
+        companyName: job.company,
+        jobRole: job.role,
+        jobLocation: job.location,
+        salaryRange: job.salary,
+        jobPostingUrl: job.url,
+        jobDescription: job.description,
+        status: 'APPLIED',
+        applicationDate: new Date().toISOString().slice(0, 10),
+        notes: `Imported from Dashboard Hiring Radar. Domain: ${job.domain}`,
+        jobType: 'FULL_TIME'
+      })
+      setTrackedJobs(prev => ({ ...prev, [job.id]: true }))
+      toast.success(`Tracked "${job.company}" into your applications!`)
+      loadDashboard()
+    } catch {
+      toast.error('Failed to track job application')
+    } finally {
+      setTrackingId(null)
     }
   }
 
@@ -64,12 +96,17 @@ function DashboardPage() {
     { label: 'Rejected',  value: stats?.rejectedCount || 0,     icon: <MdCancel />,   color: '#DC2626', bg: '#FEE2E2' },
   ]
 
+  // Top 3 curated alerts for dashboard
+  const topHiringAlerts = INITIAL_JOB_OPENINGS.slice(0, 3)
+
   return (
     <div>
       {/* Welcome Bar */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: 'var(--text)' }}>Overview</h2>
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Monitor your pipeline, interview schedule, and application metrics</p>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
+          Monitor your pipeline, interview schedule, and verified tech job openings
+        </p>
       </div>
 
       {/* Stat Cards */}
@@ -88,8 +125,7 @@ function DashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className="charts-grid">
-
+      <div className="charts-grid" style={{ marginBottom: 24 }}>
         {/* Pie Chart */}
         <div className="card">
           <div className="card-header">
@@ -116,8 +152,8 @@ function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state" style={{ padding: '40px 0' }}>
-              <p>No applications yet. <Link to="/applications/new">Add one!</Link></p>
+            <div className="empty-state" style={{ padding: '40px 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)' }}>No applications yet. <Link to="/applications/new" style={{ color: 'var(--primary)', fontWeight: 600 }}>Add one!</Link></p>
             </div>
           )}
         </div>
@@ -130,24 +166,124 @@ function DashboardPage() {
           {stats?.monthlyData?.length > 0 ? (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={stats.monthlyData} barSize={28}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--text-muted)' }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: 'var(--text-muted)' }} />
                 <Tooltip />
                 <Bar dataKey="count" name="Applications" fill="#4F46E5" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state" style={{ padding: '40px 0' }}>
-              <p>No data for this period.</p>
+            <div className="empty-state" style={{ padding: '40px 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)' }}>No data for this period.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Bottom Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      {/* Live Hiring Radar & Alerts Widget */}
+      <div className="card" style={{ marginBottom: 24, borderLeft: '4px solid #EF4444' }}>
+        <div className="card-header" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              color: '#EF4444',
+              padding: '4px 10px',
+              borderRadius: 20,
+              fontSize: 11,
+              fontWeight: 700,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444' }} />
+              LIVE RADAR
+            </span>
+            <h3 className="card-title" style={{ margin: 0 }}>Verified Tech Hiring Alerts</h3>
+          </div>
+          <Link to="/job-news" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
+            View All ({INITIAL_JOB_OPENINGS.length}) Openings & Filters →
+          </Link>
+        </div>
 
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          {topHiringAlerts.map(job => {
+            const isTracked = trackedJobs[job.id]
+            const isTracking = trackingId === job.id
+
+            return (
+              <div
+                key={job.id}
+                style={{
+                  padding: 14,
+                  borderRadius: 10,
+                  background: 'var(--table-head)',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: 10
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: '#3B82F6',
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      padding: '2px 6px',
+                      borderRadius: 4
+                    }}>
+                      {job.domain}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{job.posted}</span>
+                  </div>
+
+                  <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{job.company}</div>
+                  <div style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600 }}>{job.role}</div>
+
+                  <div style={{ display: 'flex', gap: 10, marginTop: 6, fontSize: 11, color: 'var(--text-muted)' }}>
+                    <span>📍 {job.location.split(',')[0]}</span>
+                    <span>💰 {job.salary}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 6, paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                  <a
+                    href={job.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary btn-sm"
+                    style={{ flex: 1, justifyContent: 'center', fontSize: 11, padding: '4px 8px' }}
+                  >
+                    Apply ↗
+                  </a>
+                  <button
+                    onClick={() => handleTrackFromDashboard(job)}
+                    disabled={isTracked || isTracking}
+                    className="btn btn-primary btn-sm"
+                    style={{
+                      flex: 1.2,
+                      justifyContent: 'center',
+                      fontSize: 11,
+                      padding: '4px 8px',
+                      background: isTracked ? 'rgba(16, 185, 129, 0.2)' : undefined,
+                      borderColor: isTracked ? '#10B981' : undefined,
+                      color: isTracked ? '#10B981' : undefined
+                    }}
+                  >
+                    {isTracking ? 'Tracking...' : isTracked ? '✓ Tracked' : '+ ⚡ Track'}
+                  </button>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Bottom Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
         {/* Recent Applications */}
         <div className="card">
           <div className="card-header">
@@ -158,8 +294,8 @@ function DashboardPage() {
           </div>
 
           {recentApps.length === 0 ? (
-            <div className="empty-state" style={{ padding: '30px 0' }}>
-              <p>No applications yet.</p>
+            <div className="empty-state" style={{ padding: '30px 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)' }}>No applications yet.</p>
               <Link to="/applications/new" className="btn btn-primary btn-sm" style={{ marginTop: 12 }}>
                 <MdAdd size={16} /> Add Application
               </Link>
@@ -175,7 +311,7 @@ function DashboardPage() {
                   borderBottom: '1px solid var(--border)',
                 }}>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>{app.companyName}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text)' }}>{app.companyName}</div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                       {app.jobRole} · {formatDate(app.applicationDate)}
                     </div>
@@ -197,19 +333,19 @@ function DashboardPage() {
           </div>
 
           {upcomingInterviews.length === 0 ? (
-            <div className="empty-state" style={{ padding: '30px 0' }}>
-              <p>No upcoming interviews.</p>
+            <div className="empty-state" style={{ padding: '30px 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-muted)' }}>No upcoming interviews.</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {upcomingInterviews.slice(0, 4).map(interview => (
                 <div key={interview.id} style={{
                   padding: '10px 12px',
-                  background: '#EEF2FF',
+                  background: 'var(--primary-light)',
                   borderRadius: 8,
                   borderLeft: '3px solid var(--primary)',
                 }}>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>{interview.companyName}</div>
+                  <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text)' }}>{interview.companyName}</div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
                     {interview.round} · {formatDateTime(interview.interviewDate)}
                   </div>
@@ -218,7 +354,7 @@ function DashboardPage() {
                       href={interview.meetingLink}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ fontSize: 12, color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4 }}
+                      style={{ fontSize: 12, color: 'var(--primary)', display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4, fontWeight: 500 }}
                     >
                       <MdOpenInNew size={13} /> Join Meeting
                     </a>
@@ -228,7 +364,6 @@ function DashboardPage() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   )

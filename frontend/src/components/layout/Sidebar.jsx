@@ -10,6 +10,7 @@ import {
   MdLogout,
   MdTrackChanges,
   MdCalculate,
+  MdCampaign,
 } from 'react-icons/md'
 
 /**
@@ -30,6 +31,7 @@ function Sidebar() {
     { to: '/dashboard',    icon: <MdDashboard size={20} />,  label: 'Dashboard' },
     { to: '/applications', icon: <MdWork size={20} />,       label: 'Applications' },
     { to: '/interviews',   icon: <MdEventNote size={20} />,  label: 'Interviews' },
+    { to: '/job-news',     icon: <MdCampaign size={20} />,   label: 'Hiring Radar' },
     { to: '/offers',       icon: <MdCalculate size={20} />,  label: 'Offer Calculator' },
     { to: '/profile',      icon: <MdPerson size={20} />,     label: 'Profile' },
   ]
