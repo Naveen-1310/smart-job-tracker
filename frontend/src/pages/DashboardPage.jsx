@@ -8,7 +8,7 @@ import {
   PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer
 } from 'recharts'
-import { MdWork, MdEventNote, MdCheckCircle, MdCancel, MdAdd, MdSend, MdOpenInNew, MdFlashOn } from 'react-icons/md'
+import { MdWork, MdEventNote, MdCheckCircle, MdCancel, MdAdd, MdSend, MdOpenInNew } from 'react-icons/md'
 import toast from 'react-hot-toast'
 
 // Colors for pie chart slices
@@ -45,16 +45,6 @@ function DashboardPage() {
     }
   }
 
-  const handleLoadDemo = async () => {
-    try {
-      await dashboardService.loadDemoData()
-      toast.success('Sample demo data loaded successfully!')
-      loadDashboard()
-    } catch {
-      toast.error('Failed to load demo data')
-    }
-  }
-
   if (loading) return <LoadingSpinner fullPage={false} />
 
   // Prepare pie chart data
@@ -76,22 +66,10 @@ function DashboardPage() {
 
   return (
     <div>
-      {/* Welcome & Demo Action Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Overview</h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Monitor your pipeline, interview schedule, and application metrics</p>
-        </div>
-        <button
-          onClick={handleLoadDemo}
-          className="btn btn-secondary btn-sm"
-          style={{ background: 'var(--white)', border: '1px solid var(--border)', display: 'inline-flex', alignItems: 'center', gap: 6, boxShadow: 'var(--shadow)' }}
-          title="Populate 6 sample job applications & interviews"
-          type="button"
-        >
-          <MdFlashOn color="#F59E0B" size={16} />
-          <span>Load Demo Data</span>
-        </button>
+      {/* Welcome Bar */}
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: 'var(--text)' }}>Overview</h2>
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Monitor your pipeline, interview schedule, and application metrics</p>
       </div>
 
       {/* Stat Cards */}

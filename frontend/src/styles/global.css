@@ -48,21 +48,97 @@
 
 /* ─── Glowing Modern Dark Mode Overrides ───────────────────────────── */
 [data-theme="dark"] {
-  --primary: #6366F1;
-  --primary-dark: #4F46E5;
-  --primary-light: rgba(99, 102, 241, 0.18);
-  --bg: #070913;
-  --sidebar: #0E1322;
-  --white: #131A2E;
-  --text: #F8FAFC;
-  --text-muted: #94A3B8;
-  --border: #212C45;
-  --table-head: #0E1527;
-  --table-hover: #19223C;
+  --primary: #818CF8;
+  --primary-dark: #6366F1;
+  --primary-light: rgba(99, 102, 241, 0.22);
+  --bg: #090D1A;
+  --sidebar: #101626;
+  --white: #161F36;
+  --text: #FFFFFF;
+  --text-muted: #CBD5E1;
+  --border: #2B3856;
+  --table-head: #10172B;
+  --table-hover: #1E2B4A;
   --shadow: 0 4px 12px rgba(0,0,0,0.6);
   --shadow-md: 0 8px 24px rgba(0,0,0,0.7);
   --shadow-lg: 0 16px 36px rgba(0,0,0,0.8);
-  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.35);
+  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.4);
+}
+
+/* Dark mode explicit high-contrast typography & form elements */
+[data-theme="dark"] .card-title,
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4 {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] p,
+[data-theme="dark"] span,
+[data-theme="dark"] .form-label {
+  color: #E2E8F0;
+}
+
+[data-theme="dark"] .stat-info h3 {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .stat-info p {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] table th {
+  color: #CBD5E1 !important;
+  background: #10172B !important;
+}
+
+[data-theme="dark"] table td {
+  color: #F8FAFC !important;
+}
+
+[data-theme="dark"] .form-control {
+  background: #10172B !important;
+  color: #FFFFFF !important;
+  border-color: #2B3856 !important;
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] select.form-control option,
+[data-theme="dark"] select option {
+  background: #161F36 !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: #161F36 !important;
+  color: #FFFFFF !important;
+  border-color: #2B3856 !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover:not(:disabled) {
+  background: #232E4A !important;
+}
+
+[data-theme="dark"] .kanban-card-title {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .kanban-card-subtitle {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .kanban-card-footer {
+  color: #CBD5E1 !important;
+}
+
+[data-theme="dark"] .kanban-col-count {
+  background: #10172B !important;
+  color: #FFFFFF !important;
+  border-color: #2B3856 !important;
 }
 
 body {
