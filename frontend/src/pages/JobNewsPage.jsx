@@ -207,7 +207,7 @@ function JobNewsPage() {
       {/* Metrics Banner */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
         gap: 12,
         marginBottom: 20
       }}>
@@ -434,7 +434,7 @@ function JobNewsPage() {
           </button>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
           {filteredJobs.map(job => {
             const domainColor = getDomainColor(job.domain)
             const typeBadge = getCompanyTypeBadge(job.companyType)

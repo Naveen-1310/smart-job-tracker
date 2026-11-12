@@ -11,18 +11,19 @@ import {
   MdTrackChanges,
   MdCalculate,
   MdCampaign,
+  MdClose,
 } from 'react-icons/md'
 
 /**
- * Sidebar — left navigation panel.
- * Uses NavLink to automatically apply 'active' class on current route.
+ * Sidebar — navigation panel with desktop fixed & mobile off-canvas drawer support.
  */
-function Sidebar() {
+function Sidebar({ isOpen = false, onClose = () => {} }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
     logout()
+    onClose()
     toast.success('Logged out successfully')
     navigate('/login')
   }
@@ -37,23 +38,14 @@ function Sidebar() {
   ]
 
   return (
-    <aside style={{
-      width: 'var(--sidebar-width)',
-      background: 'var(--sidebar)',
-      borderRight: '1px solid var(--border)',
-      height: '100vh',
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      display: 'flex',
-      flexDirection: 'column',
-      zIndex: 100,
-    }}>
-
-      {/* Logo */}
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      {/* Logo & Mobile Close Header */}
       <div style={{
-        padding: '20px 24px',
+        padding: '18px 20px',
         borderBottom: '1px solid var(--border)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
@@ -64,6 +56,7 @@ function Sidebar() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            flexShrink: 0
           }}>
             <MdTrackChanges size={20} color="white" />
           </div>
@@ -76,14 +69,24 @@ function Sidebar() {
             </div>
           </div>
         </div>
+
+        {/* Close Button on Mobile Drawer */}
+        <button
+          onClick={onClose}
+          className="mobile-close-btn"
+          aria-label="Close navigation menu"
+        >
+          <MdClose size={20} />
+        </button>
       </div>
 
       {/* Navigation Links */}
-      <nav style={{ flex: 1, padding: '12px 12px' }}>
+      <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
+            onClick={onClose}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
@@ -91,7 +94,7 @@ function Sidebar() {
               padding: '10px 12px',
               borderRadius: 8,
               textDecoration: 'none',
-              marginBottom: 2,
+              marginBottom: 4,
               color: isActive ? 'var(--primary)' : 'var(--text-muted)',
               background: isActive ? 'var(--primary-light)' : 'transparent',
               fontWeight: isActive ? 600 : 400,
@@ -107,7 +110,7 @@ function Sidebar() {
         ))}
       </nav>
 
-      {/* User + Logout at bottom */}
+      {/* User Info & Logout at bottom */}
       <div style={{
         padding: '16px',
         borderTop: '1px solid var(--border)',
@@ -131,7 +134,7 @@ function Sidebar() {
             fontSize: 14,
             flexShrink: 0,
           }}>
-            {user?.name?.charAt(0).toUpperCase()}
+            {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
           <div style={{ overflow: 'hidden' }}>
             <div style={{
@@ -159,7 +162,7 @@ function Sidebar() {
         <button
           onClick={handleLogout}
           className="btn btn-secondary btn-block btn-sm"
-          style={{ justifyContent: 'flex-start', gap: 8 }}
+          style={{ justifyContent: 'flex-start', gap: 8, width: '100%' }}
         >
           <MdLogout size={16} />
           Logout

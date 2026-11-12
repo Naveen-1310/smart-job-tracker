@@ -1,21 +1,23 @@
-import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
 import LoadingSpinner from '../common/LoadingSpinner'
 
 /**
- * ProtectedRoute — wraps all authenticated pages.
- *
- * - If loading (checking localStorage): show spinner
- * - If not authenticated: redirect to /login
- * - If authenticated: render the layout + page
- *
- * <Outlet /> renders the matched child route (the actual page).
+ * ProtectedRoute — wraps all authenticated pages with responsive sidebar drawer,
+ * backdrop overlay, and top navbar.
  */
 function ProtectedRoute() {
   const { isAuthenticated, loading } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const location = useLocation()
+
+  // Auto-close sidebar on route change on mobile
+  useEffect(() => {
+    setSidebarOpen(false)
+  }, [location.pathname])
 
   if (loading) {
     return <LoadingSpinner />
@@ -27,9 +29,21 @@ function ProtectedRoute() {
 
   return (
     <div className="app-layout">
-      <Sidebar />
+      {/* Mobile Backdrop Overlay */}
+      {sidebarOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Sidebar with mobile drawer support */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      {/* Main Content Area */}
       <div className="main-content">
-        <Navbar />
+        <Navbar onToggleSidebar={() => setSidebarOpen(prev => !prev)} />
         <main className="page-content">
           <Outlet />
         </main>

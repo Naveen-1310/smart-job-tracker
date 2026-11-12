@@ -393,6 +393,7 @@ table tr:hover td {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;
   background: linear-gradient(135deg, #EEF2FF 0%, #F8FAFC 100%);
 }
 
@@ -641,18 +642,172 @@ table tr:hover td {
   margin-bottom: 24px;
 }
 
-@media (max-width: 768px) {
-  .charts-grid { grid-template-columns: 1fr; }
+/* ─── Responsive Navigation & Layout ─────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ─── Responsive ─────────────────────────────────────────────────────── */
+.mobile-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+.navbar {
+  height: var(--navbar-height);
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: 99;
+  transition: left 0.25s ease;
+}
+
+/* ─── Responsive Media Queries ───────────────────────────────────────── */
 @media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .mobile-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+  }
+
+  .navbar {
+    left: 0 !important;
+    padding: 0 16px;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
   }
 
   .page-content {
-    padding: 16px;
+    padding: 16px 14px !important;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 24px 18px;
+  }
+
+  .navbar-subtitle {
+    display: none;
+  }
+
+  .theme-toggle-label {
+    display: none;
+  }
+
+  .btn-new-app-label {
+    display: none;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-info h3 {
+    font-size: 20px;
+  }
+
+  .stat-info p {
+    font-size: 11px;
+  }
+
+  .card {
+    padding: 16px !important;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .kanban-board {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding-bottom: 16px;
+  }
+
+  .kanban-col {
+    min-width: 260px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
   }
 }
 

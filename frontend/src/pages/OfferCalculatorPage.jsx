@@ -106,7 +106,7 @@ function OfferCalculatorPage() {
       </div>
 
       {/* Two Offer Columns */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
         {/* Offer A */}
         <div className="card" style={{ borderTop: '4px solid #3B82F6' }}>
           <div className="card-header">
