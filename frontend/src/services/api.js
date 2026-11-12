@@ -28,11 +28,11 @@ api.interceptors.request.use(
 )
 
 // ─── Response Interceptor ───────────────────────────────────────────
-// Handle 401 Unauthorized — token expired or invalid
+// Handle 401 Unauthorized or 403 Forbidden — token expired, invalid, or user reset
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       // Clear invalid session and redirect to login
       localStorage.removeItem('token')
       localStorage.removeItem('user')
