@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -59,5 +60,17 @@ public class DashboardController {
 
         return ResponseEntity.ok(
                 dashboardService.getUpcomingInterviews(userDetails.getUsername()));
+    }
+
+    /**
+     * POST /api/dashboard/demo-data
+     * Populates realistic sample data for instant demonstration.
+     */
+    @PostMapping("/demo-data")
+    public ResponseEntity<java.util.Map<String, String>> loadDemoData(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        dashboardService.loadDemoData(userDetails.getUsername());
+        return ResponseEntity.ok(java.util.Map.of("message", "Demo data generated successfully!"));
     }
 }

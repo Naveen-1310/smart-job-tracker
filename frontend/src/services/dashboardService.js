@@ -12,6 +12,9 @@ export const dashboardService = {
 
   /** Get upcoming scheduled interviews */
   getUpcomingInterviews: () => api.get('/dashboard/upcoming-interviews'),
+
+  /** Load realistic demo data */
+  loadDemoData: () => api.post('/dashboard/demo-data'),
 }
 
 /**

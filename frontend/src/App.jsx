@@ -14,6 +14,7 @@ import EditApplicationPage from './pages/EditApplicationPage'
 import ApplicationDetailPage from './pages/ApplicationDetailPage'
 import InterviewsPage from './pages/InterviewsPage'
 import ProfilePage from './pages/ProfilePage'
+import OfferCalculatorPage from './pages/OfferCalculatorPage'
 
 /**
  * App.jsx — Root component.
@@ -40,6 +41,7 @@ function App() {
             <Route path="/applications/:id/edit" element={<EditApplicationPage />} />
             <Route path="/applications/:id" element={<ApplicationDetailPage />} />
             <Route path="/interviews" element={<InterviewsPage />} />
+            <Route path="/offers" element={<OfferCalculatorPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 

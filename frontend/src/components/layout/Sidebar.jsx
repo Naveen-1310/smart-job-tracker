@@ -9,6 +9,7 @@ import {
   MdPerson,
   MdLogout,
   MdTrackChanges,
+  MdCalculate,
 } from 'react-icons/md'
 
 /**
@@ -29,6 +30,7 @@ function Sidebar() {
     { to: '/dashboard',    icon: <MdDashboard size={20} />,  label: 'Dashboard' },
     { to: '/applications', icon: <MdWork size={20} />,       label: 'Applications' },
     { to: '/interviews',   icon: <MdEventNote size={20} />,  label: 'Interviews' },
+    { to: '/offers',       icon: <MdCalculate size={20} />,  label: 'Offer Calculator' },
     { to: '/profile',      icon: <MdPerson size={20} />,     label: 'Profile' },
   ]
 
@@ -92,7 +94,9 @@ function Sidebar() {
               background: isActive ? 'var(--primary-light)' : 'transparent',
               fontWeight: isActive ? 600 : 400,
               fontSize: 14,
-              transition: 'all 0.15s ease',
+              boxShadow: isActive ? '0 0 16px rgba(99, 102, 241, 0.22)' : 'none',
+              borderLeft: isActive ? '3px solid var(--primary)' : '3px solid transparent',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
             })}
           >
             {item.icon}
