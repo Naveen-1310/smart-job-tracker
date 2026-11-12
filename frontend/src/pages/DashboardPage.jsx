@@ -59,22 +59,28 @@ function DashboardPage() {
     setTrackingId(job.id)
     try {
       await applicationService.create({
-        companyName: job.company,
-        jobRole: job.role,
-        jobLocation: job.location,
-        salaryRange: job.salary,
-        jobPostingUrl: job.url,
-        jobDescription: job.description,
+        companyName: (job.company || 'Tech Company').slice(0, 250),
+        jobRole: (job.role || 'Software Engineer').slice(0, 250),
+        jobLocation: (job.location || 'Remote').slice(0, 450),
+        salaryRange: (job.salary || 'Competitive').slice(0, 200),
+        jobPostingUrl: (job.url || '').slice(0, 1000),
+        jobDescription: (job.description || '').slice(0, 5000),
         status: 'APPLIED',
         applicationDate: new Date().toISOString().slice(0, 10),
-        notes: `Imported from Dashboard Hiring Radar. Domain: ${job.domain} | ${job.isRealLive ? 'Real Live API' : 'Campus Drive'}`,
+        notes: `Imported from Dashboard Hiring Radar. Domain: ${job.domain || 'Tech'} | ${job.isRealLive ? 'Real Live API' : 'Campus Drive'}`,
         jobType: 'FULL_TIME'
       })
       setTrackedJobs(prev => ({ ...prev, [job.id]: true }))
       toast.success(`Tracked "${job.company}" into your applications!`)
       loadDashboard()
-    } catch {
-      toast.error('Failed to track job application')
+    } catch (error) {
+      console.error('Track error:', error)
+      const errMsg =
+        error.response?.data?.message ||
+        (error.response
+          ? `Server returned ${error.response.status}`
+          : 'Backend server is not running on port 8080! Please run "run-app.bat".')
+      toast.error(errMsg)
     } finally {
       setTrackingId(null)
     }
