@@ -18,18 +18,28 @@ if exist "%~dp0backend\target\smart-job-tracker-1.0.0.jar" (
     start "Job Tracker - Backend" cmd /k "cd /d %~dp0backend && mvnw.cmd spring-boot:run"
 )
 
-:: Wait 3 seconds
+:: Wait 3 seconds for Backend
 timeout /t 3 >nul
 
 :: 3. Start React Frontend in a new window
 echo Starting React Frontend (Port 5173)...
 start "Job Tracker - Frontend" cmd /k "cd /d %~dp0frontend && npm run dev"
 
+:: Wait 3 seconds for Vite
+timeout /t 3 >nul
+
+:: 4. Automatically open browser
+echo Opening application in your browser...
+start http://localhost:5173
+
 echo.
 echo ===================================================
-echo Backend starting on: http://localhost:8080
-echo Frontend starting on: http://localhost:5173
+echo   Application is now running!
+echo   Backend:  http://localhost:8080
+echo   Frontend: http://localhost:5173
 echo ===================================================
-echo Once both windows say ready, open: http://localhost:5173
+echo.
+echo (Keep the two black terminal windows open while using the app)
+echo (Close them when you are done)
 echo.
 pause
