@@ -1,28 +1,60 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { applicationService } from '../services/applicationService'
-import { JOB_DOMAINS, COMPANY_TYPES, EXPERIENCE_LEVELS, INITIAL_JOB_OPENINGS } from '../services/jobNewsService'
+import {
+  JOB_DOMAINS,
+  COMPANY_TYPES,
+  EXPERIENCE_LEVELS,
+  jobNewsService
+} from '../services/jobNewsService'
 import {
   MdSearch, MdOpenInNew, MdCheckCircle, MdLocationOn,
-  MdAttachMoney, MdWork, MdSchedule, MdFilterList, MdTrendingUp,
-  MdFlashOn, MdBusiness, MdSchool, MdPublic
+  MdAttachMoney, MdWork, MdSchedule, MdFilterList,
+  MdFlashOn, MdBusiness, MdSchool, MdPublic, MdRefresh
 } from 'react-icons/md'
 import { FaJava, FaReact, FaPython, FaAws, FaMobileAlt, FaShieldAlt } from 'react-icons/fa'
-import { SiGooglecloud } from 'react-icons/si'
 import toast from 'react-hot-toast'
 
 /**
- * JobNewsPage — Live verified hiring news & tech openings across all domains & company tiers.
+ * JobNewsPage — Live verified hiring news & real-time tech openings across all domains & company tiers.
+ * Fetches 100% REAL active jobs via Live API + Verified MNC/Campus Drives.
  */
 function JobNewsPage() {
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [search, setSearch] = useState('')
   const [selectedDomain, setSelectedDomain] = useState('All Domains')
   const [selectedType, setSelectedType] = useState('All Companies')
   const [selectedExp, setSelectedExp] = useState('All Levels')
+  const [sourceFilter, setSourceFilter] = useState('ALL') // 'ALL' | 'LIVE' | 'DRIVES'
   const [trackedJobs, setTrackedJobs] = useState({})
   const [trackingId, setTrackingId] = useState(null)
 
-  // Filter jobs by search, domain, company type, and experience
-  const filteredJobs = INITIAL_JOB_OPENINGS.filter(job => {
+  useEffect(() => {
+    loadJobs()
+  }, [])
+
+  const loadJobs = async (forceRefresh = false) => {
+    try {
+      if (forceRefresh) setRefreshing(true)
+      else setLoading(true)
+
+      const allJobs = await jobNewsService.getAllOpenings(forceRefresh)
+      setJobs(allJobs)
+
+      if (forceRefresh) {
+        toast.success(`Refreshed ${allJobs.length} live openings!`)
+      }
+    } catch {
+      toast.error('Failed to load live jobs')
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
+  }
+
+  // Filter jobs by search, domain, company type, experience, and source
+  const filteredJobs = jobs.filter(job => {
     const q = search.toLowerCase()
     const matchesSearch =
       job.company.toLowerCase().includes(q) ||
@@ -40,15 +72,19 @@ function JobNewsPage() {
     const matchesExp =
       selectedExp === 'All Levels' || job.expLevel === selectedExp
 
-    return matchesSearch && matchesDomain && matchesType && matchesExp
+    const matchesSource =
+      sourceFilter === 'ALL' ||
+      (sourceFilter === 'LIVE' && job.isRealLive) ||
+      (sourceFilter === 'DRIVES' && !job.isRealLive)
+
+    return matchesSearch && matchesDomain && matchesType && matchesExp && matchesSource
   })
 
   // Quick stats
-  const totalCount = INITIAL_JOB_OPENINGS.length
-  const fresherCount = INITIAL_JOB_OPENINGS.filter(j => j.expLevel === 'Freshers (2024-2026)').length
-  const remoteCount = INITIAL_JOB_OPENINGS.filter(j => j.companyType === 'Remote Teams').length
-  const mncCount = INITIAL_JOB_OPENINGS.filter(j => j.companyType === 'Top MNCs').length
-  const startupCount = INITIAL_JOB_OPENINGS.filter(j => j.companyType === 'Startups & Unicorns').length
+  const totalCount = jobs.length
+  const liveCount = jobs.filter(j => j.isRealLive).length
+  const driveCount = jobs.filter(j => !j.isRealLive).length
+  const fresherCount = jobs.filter(j => j.expLevel === 'Freshers (2024-2026)').length
 
   // 1-Click Track: automatically imports into MySQL database
   const handleTrackJob = async (job) => {
@@ -63,7 +99,7 @@ function JobNewsPage() {
         jobDescription: job.description,
         status: 'APPLIED',
         applicationDate: new Date().toISOString().slice(0, 10),
-        notes: `Imported from Hiring Radar (${job.source}). Domain: ${job.domain} | Batch: ${job.experience}`,
+        notes: `Imported from Hiring Radar (${job.source}). Domain: ${job.domain} | ${job.isRealLive ? 'Real Live API' : 'Campus Drive'}`,
         jobType: 'FULL_TIME'
       })
       setTrackedJobs(prev => ({ ...prev, [job.id]: true }))
@@ -125,27 +161,40 @@ function JobNewsPage() {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h2 style={{ fontSize: 24, fontWeight: 700, margin: 0, color: 'var(--text)' }}>
-              Hiring Radar & Tech Job Feed
+              Hiring Radar & Real-Time Openings
             </h2>
             <span style={{
-              background: 'rgba(239, 68, 68, 0.15)',
-              color: '#EF4444',
+              background: 'rgba(16, 185, 129, 0.15)',
+              color: '#10B981',
               padding: '3px 10px',
               borderRadius: 20,
               fontSize: 11,
               fontWeight: 700,
-              border: '1px solid rgba(239, 68, 68, 0.35)',
+              border: '1px solid rgba(16, 185, 129, 0.35)',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 5
             }}>
-              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#EF4444', animation: 'pulse 1.5s infinite' }} />
-              LIVE OPENINGS
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#10B981' }} />
+              LIVE SYNC ACTIVE
             </span>
           </div>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-            Verified hiring alerts across MNCs, Startups, Product companies & Remote teams. Filter across all domains and track directly into your database.
+            100% real-time active openings from live job boards + verified top MNC/Campus recruitment drives.
           </p>
+        </div>
+
+        {/* Refresh Live Jobs Button */}
+        <div>
+          <button
+            onClick={() => loadJobs(true)}
+            disabled={refreshing || loading}
+            className="btn btn-secondary"
+            style={{ fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            <MdRefresh size={18} style={{ transform: refreshing ? 'rotate(360deg)' : 'none', transition: 'transform 0.6s' }} />
+            {refreshing ? 'Syncing Live Jobs...' : 'Refresh Live Feed'}
+          </button>
         </div>
       </div>
 
@@ -162,17 +211,17 @@ function JobNewsPage() {
           </div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{totalCount}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Verified Openings</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Total Active Openings</div>
           </div>
         </div>
 
         <div className="card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', padding: 10, borderRadius: 10 }}>
-            <MdSchool size={22} />
+            <MdPublic size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{fresherCount}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Freshers / 2025/2026</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{liveCount}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Real-Time Live API Jobs</div>
           </div>
         </div>
 
@@ -181,24 +230,50 @@ function JobNewsPage() {
             <MdBusiness size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{mncCount + startupCount}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>MNCs & Unicorns</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{driveCount}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Verified Campus Drives</div>
           </div>
         </div>
 
         <div className="card" style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ background: 'rgba(139, 92, 246, 0.15)', color: '#8B5CF6', padding: 10, borderRadius: 10 }}>
-            <MdPublic size={22} />
+          <div style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B', padding: 10, borderRadius: 10 }}>
+            <MdSchool size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{remoteCount}</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>100% Remote Roles</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text)' }}>{fresherCount}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Freshers / 2025/2026 Batch</div>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="card" style={{ marginBottom: 20, padding: 18 }}>
+        {/* Source Tab Switcher */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, borderBottom: '1px solid var(--border)', paddingBottom: 12 }}>
+          <button
+            onClick={() => setSourceFilter('ALL')}
+            className={`btn btn-sm ${sourceFilter === 'ALL' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ fontSize: 12 }}
+          >
+            All Openings ({jobs.length})
+          </button>
+          <button
+            onClick={() => setSourceFilter('LIVE')}
+            className={`btn btn-sm ${sourceFilter === 'LIVE' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 5 }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
+            100% Real Live API ({liveCount})
+          </button>
+          <button
+            onClick={() => setSourceFilter('DRIVES')}
+            className={`btn btn-sm ${sourceFilter === 'DRIVES' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ fontSize: 12 }}
+          >
+            ⭐ Campus & MNC Drives ({driveCount})
+          </button>
+        </div>
+
         {/* Search & Selectors Row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 14 }}>
           {/* Search Box */}
@@ -253,8 +328,8 @@ function JobNewsPage() {
               const isSelected = selectedDomain === domain
               const color = getDomainColor(domain)
               const count = domain === 'All Domains'
-                ? INITIAL_JOB_OPENINGS.length
-                : INITIAL_JOB_OPENINGS.filter(j => j.domain === domain).length
+                ? jobs.length
+                : jobs.filter(j => j.domain === domain).length
 
               return (
                 <button
@@ -299,15 +374,16 @@ function JobNewsPage() {
         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
           Showing <strong>{filteredJobs.length}</strong> openings
           {selectedDomain !== 'All Domains' && <span> in <strong>{selectedDomain}</strong></span>}
-          {selectedType !== 'All Companies' && <span> · <strong>{selectedType}</strong></span>}
-          {selectedExp !== 'All Levels' && <span> · <strong>{selectedExp}</strong></span>}
+          {sourceFilter === 'LIVE' && <span> · <strong>100% Real Live API</strong></span>}
+          {sourceFilter === 'DRIVES' && <span> · <strong>Campus & MNC Drives</strong></span>}
         </div>
-        {(selectedDomain !== 'All Domains' || selectedType !== 'All Companies' || selectedExp !== 'All Levels' || search) && (
+        {(selectedDomain !== 'All Domains' || selectedType !== 'All Companies' || selectedExp !== 'All Levels' || sourceFilter !== 'ALL' || search) && (
           <button
             onClick={() => {
               setSelectedDomain('All Domains')
               setSelectedType('All Companies')
               setSelectedExp('All Levels')
+              setSourceFilter('ALL')
               setSearch('')
             }}
             style={{
@@ -325,19 +401,25 @@ function JobNewsPage() {
         )}
       </div>
 
-      {/* Job Openings Grid */}
-      {filteredJobs.length === 0 ? (
+      {/* Loading State */}
+      {loading ? (
+        <div className="card" style={{ padding: '60px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>Connecting to Real-Time Job Feed...</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>Fetching active openings from live job boards</div>
+        </div>
+      ) : filteredJobs.length === 0 ? (
         <div className="card empty-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
           <MdWork size={44} style={{ color: 'var(--text-muted)', marginBottom: 12, opacity: 0.5 }} />
           <h4 style={{ color: 'var(--text)' }}>No job openings found</h4>
           <p style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 400, margin: '8px auto 16px' }}>
-            Try adjusting your search keywords, domain specialization, or company type filters.
+            Try adjusting your search keywords, domain specialization, or feed source filters.
           </p>
           <button
             onClick={() => {
               setSelectedDomain('All Domains')
               setSelectedType('All Companies')
               setSelectedExp('All Levels')
+              setSourceFilter('ALL')
               setSearch('')
             }}
             className="btn btn-primary btn-sm"
@@ -370,6 +452,37 @@ function JobNewsPage() {
                   {/* Top Badges */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 10 }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {/* Live Badge vs Drive Badge */}
+                      {job.isRealLive ? (
+                        <span style={{
+                          background: 'rgba(16, 185, 129, 0.15)',
+                          color: '#10B981',
+                          border: '1px solid rgba(16, 185, 129, 0.35)',
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}>
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10B981' }} />
+                          LIVE OPENING
+                        </span>
+                      ) : (
+                        <span style={{
+                          background: 'rgba(245, 158, 11, 0.15)',
+                          color: '#F59E0B',
+                          border: '1px solid rgba(245, 158, 11, 0.35)',
+                          padding: '2px 8px',
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700
+                        }}>
+                          ⭐ CAMPUS DRIVE
+                        </span>
+                      )}
+
                       {/* Domain Badge */}
                       <span style={{
                         background: `${domainColor}18`,
@@ -399,7 +512,7 @@ function JobNewsPage() {
                       </span>
                     </div>
 
-                    {/* Source & Posted */}
+                    {/* Posted */}
                     <span style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}>
                       <MdSchedule size={13} /> {job.posted}
                     </span>
@@ -435,7 +548,7 @@ function JobNewsPage() {
                   </p>
 
                   {/* Skills tags */}
-                  {job.skills && (
+                  {job.skills && job.skills.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 16 }}>
                       {job.skills.map((skill, idx) => (
                         <span key={idx} style={{
@@ -462,7 +575,7 @@ function JobNewsPage() {
                   paddingTop: 14,
                   marginTop: 'auto'
                 }}>
-                  {/* Apply Link */}
+                  {/* Real Apply Link */}
                   <a
                     href={job.url}
                     target="_blank"

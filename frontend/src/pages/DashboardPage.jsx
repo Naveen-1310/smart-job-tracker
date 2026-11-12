@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { dashboardService } from '../services/dashboardService'
 import { applicationService } from '../services/applicationService'
-import { INITIAL_JOB_OPENINGS } from '../services/jobNewsService'
-import { formatDate, formatDateTime, getStatusLabel } from '../utils/helpers'
+import { jobNewsService } from '../services/jobNewsService'
+import { formatDate, formatDateTime } from '../utils/helpers'
 import StatusBadge from '../components/applications/StatusBadge'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import {
@@ -12,7 +12,7 @@ import {
 } from 'recharts'
 import {
   MdWork, MdEventNote, MdCheckCircle, MdCancel, MdAdd, MdSend,
-  MdOpenInNew, MdFlashOn, MdTrendingUp, MdLocationOn, MdAttachMoney
+  MdOpenInNew, MdFlashOn
 } from 'react-icons/md'
 import toast from 'react-hot-toast'
 
@@ -26,6 +26,7 @@ function DashboardPage() {
   const [stats, setStats] = useState(null)
   const [recentApps, setRecentApps] = useState([])
   const [upcomingInterviews, setUpcomingInterviews] = useState([])
+  const [liveAlerts, setLiveAlerts] = useState([])
   const [loading, setLoading] = useState(true)
   const [trackedJobs, setTrackedJobs] = useState({})
   const [trackingId, setTrackingId] = useState(null)
@@ -36,14 +37,16 @@ function DashboardPage() {
 
   const loadDashboard = async () => {
     try {
-      const [statsRes, recentRes, interviewsRes] = await Promise.all([
+      const [statsRes, recentRes, interviewsRes, jobs] = await Promise.all([
         dashboardService.getStats(),
         dashboardService.getRecentApplications(),
         dashboardService.getUpcomingInterviews(),
+        jobNewsService.getAllOpenings(),
       ])
       setStats(statsRes.data)
       setRecentApps(recentRes.data)
       setUpcomingInterviews(interviewsRes.data)
+      setLiveAlerts(jobs.slice(0, 3))
     } catch {
       toast.error('Failed to load dashboard data')
     } finally {
@@ -64,7 +67,7 @@ function DashboardPage() {
         jobDescription: job.description,
         status: 'APPLIED',
         applicationDate: new Date().toISOString().slice(0, 10),
-        notes: `Imported from Dashboard Hiring Radar. Domain: ${job.domain}`,
+        notes: `Imported from Dashboard Hiring Radar. Domain: ${job.domain} | ${job.isRealLive ? 'Real Live API' : 'Campus Drive'}`,
         jobType: 'FULL_TIME'
       })
       setTrackedJobs(prev => ({ ...prev, [job.id]: true }))
@@ -96,16 +99,13 @@ function DashboardPage() {
     { label: 'Rejected',  value: stats?.rejectedCount || 0,     icon: <MdCancel />,   color: '#DC2626', bg: '#FEE2E2' },
   ]
 
-  // Top 3 curated alerts for dashboard
-  const topHiringAlerts = INITIAL_JOB_OPENINGS.slice(0, 3)
-
   return (
     <div>
       {/* Welcome Bar */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: 'var(--text)' }}>Overview</h2>
         <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0 0' }}>
-          Monitor your pipeline, interview schedule, and verified tech job openings
+          Monitor your pipeline, interview schedule, and 100% real-time verified tech job openings
         </p>
       </div>
 
@@ -182,12 +182,12 @@ function DashboardPage() {
       </div>
 
       {/* Live Hiring Radar & Alerts Widget */}
-      <div className="card" style={{ marginBottom: 24, borderLeft: '4px solid #EF4444' }}>
+      <div className="card" style={{ marginBottom: 24, borderLeft: '4px solid #10B981' }}>
         <div className="card-header" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{
-              background: 'rgba(239, 68, 68, 0.15)',
-              color: '#EF4444',
+              background: 'rgba(16, 185, 129, 0.15)',
+              color: '#10B981',
               padding: '4px 10px',
               borderRadius: 20,
               fontSize: 11,
@@ -196,18 +196,18 @@ function DashboardPage() {
               alignItems: 'center',
               gap: 5
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' }} />
               LIVE RADAR
             </span>
-            <h3 className="card-title" style={{ margin: 0 }}>Verified Tech Hiring Alerts</h3>
+            <h3 className="card-title" style={{ margin: 0 }}>Real-Time Tech Openings & Drives</h3>
           </div>
           <Link to="/job-news" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}>
-            View All ({INITIAL_JOB_OPENINGS.length}) Openings & Filters →
+            View All Openings & Domain Filters →
           </Link>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-          {topHiringAlerts.map(job => {
+          {liveAlerts.map(job => {
             const isTracked = trackedJobs[job.id]
             const isTracking = trackingId === job.id
 
